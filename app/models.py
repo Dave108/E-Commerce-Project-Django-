@@ -33,10 +33,10 @@ class Category(models.Model):
 
 
 LABEL = (
-    ('N', 'New'),
-    ('BS', 'Best Seller'),
-    ('CL', 'Clearance'),
-    ('EV', 'Ever Green'),
+    ('New', 'New'),
+    ('Best Seller', 'Best Seller'),
+    ('Clearance', 'Clearance'),
+    ('Ever Green', 'Ever Green'),
 )
 
 
@@ -46,7 +46,7 @@ class Products(models.Model):
     description = models.TextField()
     price = models.FloatField(default=0)
     discount_price = models.FloatField(blank=True, null=True)
-    label = models.CharField(choices=LABEL, max_length=2)
+    label = models.CharField(choices=LABEL, max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

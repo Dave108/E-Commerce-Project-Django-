@@ -3,14 +3,20 @@ from .forms import SignUpUsers, AdditionalDetails
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.files.storage import FileSystemStorage
-from .models import CustomerInfo
-
+from .models import CustomerInfo, Products
+from django.core.paginator import Paginator
 
 # Create your views here.
 
 
 def homepage(request):
-    return render(request, 'homepage.html')
+
+
+    products = Products.objects.all()
+    context = {
+        "products": products
+    }
+    return render(request, 'homepage.html', context)
 
 
 def user_signup(request):
@@ -47,7 +53,7 @@ def user_login(request):
                     check_data = check.check_all_details()
                     print(check_data, '-------check')
                     if check_data:
-                        return HttpResponseRedirect(reverse('homepage'))  #reverse redirect
+                        return HttpResponseRedirect(reverse('homepage'))  # reverse redirect
                     else:
                         return HttpResponseRedirect('/additionaldetails/')
                 else:
