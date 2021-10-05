@@ -5,16 +5,21 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.files.storage import FileSystemStorage
 from .models import CustomerInfo, Products
 from django.core.paginator import Paginator
+from django.db.models import Q
+
 
 # Create your views here.
 
 
 def homepage(request):
-
-
-    products = Products.objects.all()
+    products = Products.objects.all().order_by('id')
+    paginator = Paginator(products, 3, orphans=1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    # context items
     context = {
-        "products": products
+        "products": products,
+        "page_obj": page_obj,
     }
     return render(request, 'homepage.html', context)
 
@@ -115,3 +120,23 @@ def additional_details(request):
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect('/login/')
+
+
+def search_items(request):
+    if request.method == "POST":
+        search_obj = request.POST.get('searchobj')
+        # code for searching
+        search_result = Products.objects.filter(
+            Q(name__icontains=search_obj) | Q(description__icontains=search_obj) | Q(label__icontains=search_obj))
+        print(search_result)
+        # ------------------------
+        # paginating the search results
+        paginator = Paginator(search_result, 3, orphans=1)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        # context items
+        context = {
+            "page_obj": page_obj,
+        }
+        # ------------------------
+    return render(request, 'login.html')

@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>HOME PAGE</title>
+    <!-- fontawesome script button logos -->
+    <script src="https://kit.fontawesome.com/e672d1ec50.js" crossorigin="anonymous"></script>
   </head>
   <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -24,8 +26,9 @@
           <a class="nav-link text-uppercase" href="#">{{user}} <span class="sr-only ">hello</span></a>
         </li>
 <!--        search bar-->
-        <form class="form-inline my-2 my-lg-0" style="margin-left:150px;">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <form class="form-inline my-2 my-lg-0" style="margin-left:150px;" action="{% url 'search' %}" method="POST">
+          {% csrf_token %}
+          <input class="form-control mr-sm-2" type="search" name="searchobj" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
 <!--        dropdown for categories-->
@@ -43,9 +46,15 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Link</a>
         </li>
+        {% if user.is_authenticated%}
         <li class="nav-item">
           <a class="nav-link btn btn-danger btn-sm" href="{% url 'logout' %}">Logout</a>
         </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link btn btn-danger btn-sm" href="{% url 'login' %}">Login</a>
+        </li>
+        {% endif %}
       </ul>
 
     </div>
@@ -58,25 +67,84 @@
 
 
 
-    <div class="container">
-    <h1>welcome to home page</h1>
-    <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">LOGOUT</a>
+    <div class="container text-center">
+      <br>
     </div>
     <br>
+<!--    <div class="container">-->
+<!--    {% for product in products %}-->
+<!--      <h5><strong>{{product.name}}</strong></h5>-->
+<!--      <p>{{product.description}}</p>-->
+<!--      {% if product.discount_price %}-->
+<!--        <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>-->
+<!--        <em class="text-danger">Discounted Price: <span>&#8377;</span>{{product.discount_price}}</em>-->
+<!--      {% else %}-->
+<!--        <p class="text-primary">Price: <span>&#8377;</span>{{product.price}}</p>-->
+<!--      {% endif %}-->
+<!--      <h6 class="p-1 bg-success text-white text-center rounded" style="width:90px;">{{product.label}}</h6>-->
+<!--      <hr>-->
+<!--      {% endfor %}-->
+<!--    </div>-->
+
+<!--&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
     <div class="container">
-    {% for product in products %}
-        <h5>{{product.name}}</h5>
+      {% for product in page_obj %}
+        <h5 class="text-capitalize">
+          <strong>
+          <small><sup class="p-1 bg-success text-white text-center rounded">{{product.label}}</sup></small>
+          {{product.name}}
+          </strong>
+        </h5>
         <p>{{product.description}}</p>
-      {% if product.discount_price %}
-        <del><small>Original Price: {{product.price}}</small></del><br>
-        <em>Discounted Price: {{product.discount_price}}</em>
-      {% else %}
-        <p>Price: {{product.price}}</p>
-      {% endif %}
-        <h6>{{product.label}}</h6>
-      <hr>
+        {% if product.discount_price %}
+          <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>
+          <em class="text-danger">Discounted Price: only <span>&#8377;</span>{{product.discount_price}}</em>
+        {% else %}
+          <p class="text-primary">Price: <span>&#8377;</span>{{product.price}}</p>
+        {% endif %}
+<!--        <h6 class="p-1 bg-success text-white text-center rounded" style="width:90px;">{{product.label}}</h6>-->
+        <hr>
       {% endfor %}
     </div>
+
+    <!--    pagination-->
+    <div>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}">Previous</a></li>
+          {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
+          {% endif %}
+
+          <li class="page-item"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}">Next</a></li>
+          {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Next</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    <hr>
+
+
+    <!-- Footer code -->
+
+    <footer class="white-section" id="footer">
+      <div class="container-fluid text-center">
+
+        <i class="footer-icon fab fa-twitter"></i>
+        <i class="footer-icon fab fa-facebook-f"></i>
+        <i class="footer-icon fab fa-instagram"></i>
+        <i class="footer-icon fas fa-envelope"></i>
+
+        <p class="footer-text">© Copyright 2021 E-commerce site by Sourabh Devlal</p>
+      </div>
+    </footer>
+
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
