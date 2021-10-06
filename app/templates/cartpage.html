@@ -69,29 +69,26 @@
 
 
     <div class="container">
+      <h1>inside cart</h1>
+      {% for product in products %}
+      <h6>{{ product.item }}</h6>
+      <img src="{{product.item.image.url}}" style="width:200px;">
+<!--      <h6>Quantity: {{ product.quantity }}</h6>-->
 
-      <img src="{{data.image.url}}" alt="Product Image " style="width:200px;">
-      <h5>{{ data.name }}</h5>
-      <p>{{data.description}}</p>
-      <p>{{data.price}}</p>
-      <p>{{data.label}}</p>
-      {% if data.discount_price %}
-      <p>{{data.discount_price}}</p>
-      {% endif %}
-
-<!--      -&#45;&#45;&#45;&#45;-->
-
-      {% if kart %}
-      <p><em>Quantity Selected: </em>{{kart.quantity}}</p>
+      {% if product %}
+      <p><em>Quantity Selected: </em>{{product.quantity}}</p>
       {% else %}
       <p><em>Quantity Selected: </em>0</p>
       {% endif%}
 
-      <a href="{{data.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
+      <a href="{{product.item.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
 
-      <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
+      <a href="{{product.item.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
 
-      <a href="{% url 'cart' %}" class="btn btn-sm btn-warning ">GO TO CART ({{total_kart_items}} items in cart)</a>
+
+      <br>
+      <hr>
+      {% endfor %}
     </div>
 
 

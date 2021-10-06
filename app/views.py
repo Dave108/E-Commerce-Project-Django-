@@ -17,9 +17,9 @@ def homepage(request):
     paginator = Paginator(products, 3, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-# ----------------------
+    # ----------------------
     all_items = Kart.objects.filter(user=request.user)
-# ----------------------
+    # ----------------------
     # context items
     context = {
         "products": products,
@@ -143,9 +143,9 @@ def search_items(request):
     paginator = Paginator(search_result, 3, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-# --------------
+    # --------------
     all_items = Kart.objects.filter(user=request.user)
-# --------------
+    # --------------
     # context items
     context = {
         "results": page_obj,
@@ -160,9 +160,9 @@ def view_product(request, slug):
     data = Products.objects.get(slug=slug)
     item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
     print(data.image.url, '------image')
-# -------------
+    # -------------
     all_items = Kart.objects.filter(user=request.user)
-# -------------
+    # -------------
     print(len(all_items))
     context = {
         "data": data,
@@ -191,11 +191,7 @@ def add_kart(request, pk):
 
 def remove_from_kart(request, pk):
     data = Products.objects.get(id=pk)
-    # kart_data = Kart.objects.get_or_create(
-    #     user=request.user,
-    #     ordered=False,
-    #     item=data,
-    # )
+
     item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
     if item:
         if item.quantity == 1:
@@ -209,3 +205,15 @@ def remove_from_kart(request, pk):
         print("nothing in cart")
     print(data.slug)
     return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+
+
+def open_cart(request):
+    # -------------
+    all_items = Kart.objects.filter(user=request.user)
+    # -------------
+    print(all_items[0].item)
+    context = {
+        "total_kart_items": len(all_items),
+        "products": all_items,
+    }
+    return render(request, 'cartpage.html', context)
