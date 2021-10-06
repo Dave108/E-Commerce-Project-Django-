@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-
+# app_name = 'app'
 urlpatterns = [
                   path('', views.homepage, name='homepage'),
                   path('signup/', views.user_signup, name='signup'),
@@ -10,5 +10,8 @@ urlpatterns = [
                   path('additionaldetails/', views.additional_details, name='additionaldetails'),
                   path('logout/', views.logout_user, name='logout'),
                   path('search/', views.search_items, name='search'),
-                  path('search/<int:pk>/', views.search_items, name='search'),
+                  path('product/<str:slug>/', views.view_product, name='product'),
+                  path('product/add-to-cart/<pk>/', views.add_kart, name='add-to-cart'),
+                  path('product/remove-from-cart/<pk>/', views.remove_from_kart, name='remove-from-cart'),
+                  path('product/cart/', views.remove_from_kart, name='cart'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

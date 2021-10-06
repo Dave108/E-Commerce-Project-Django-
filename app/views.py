@@ -3,10 +3,12 @@ from .forms import SignUpUsers, AdditionalDetails
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.files.storage import FileSystemStorage
-from .models import CustomerInfo, Products
+from .models import CustomerInfo, Products, Kart
 from django.core.paginator import Paginator
 from django.db.models import Q
 import cloudinary
+
+
 # Create your views here.
 
 
@@ -15,10 +17,14 @@ def homepage(request):
     paginator = Paginator(products, 3, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+# ----------------------
+    all_items = Kart.objects.filter(user=request.user)
+# ----------------------
     # context items
     context = {
         "products": products,
         "page_obj": page_obj,
+        "total_kart_items": len(all_items),
     }
     return render(request, 'homepage.html', context)
 
@@ -137,10 +143,69 @@ def search_items(request):
     paginator = Paginator(search_result, 3, orphans=1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+# --------------
+    all_items = Kart.objects.filter(user=request.user)
+# --------------
     # context items
     context = {
         "results": page_obj,
         "search_obj": search_obj,
+        "total_kart_items": len(all_items),
     }
     # ------------------------
     return render(request, 'searchpage.html', context)
+
+
+def view_product(request, slug):
+    data = Products.objects.get(slug=slug)
+    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    print(data.image.url, '------image')
+# -------------
+    all_items = Kart.objects.filter(user=request.user)
+# -------------
+    print(len(all_items))
+    context = {
+        "data": data,
+        "kart": item,
+        "total_kart_items": len(all_items),
+    }
+    return render(request, 'productpage.html', context)
+
+
+def add_kart(request, pk):
+    data = Products.objects.get(id=pk)
+    kart_data = Kart.objects.get_or_create(
+        user=request.user,
+        ordered=False,
+        item=data,
+    )
+    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    print(item.quantity, '------get')
+    if item:
+        item.quantity = item.quantity + 1
+        item.save()
+        print("exists", item.quantity)
+    print(data.slug)
+    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+
+
+def remove_from_kart(request, pk):
+    data = Products.objects.get(id=pk)
+    # kart_data = Kart.objects.get_or_create(
+    #     user=request.user,
+    #     ordered=False,
+    #     item=data,
+    # )
+    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    if item:
+        if item.quantity == 1:
+            item.delete()
+            print("success deleted ")
+        else:
+            item.quantity = item.quantity - 1
+            item.save()
+            print("exists", item.quantity)
+    else:
+        print("nothing in cart")
+    print(data.slug)
+    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
