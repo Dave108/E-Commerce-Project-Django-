@@ -10,4 +10,5 @@ urlpatterns = [
                   path('additionaldetails/', views.additional_details, name='additionaldetails'),
                   path('logout/', views.logout_user, name='logout'),
                   path('search/', views.search_items, name='search'),
+                  path('search/<int:pk>/', views.search_items, name='search'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

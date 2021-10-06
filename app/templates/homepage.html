@@ -13,9 +13,10 @@
     <script src="https://kit.fontawesome.com/e672d1ec50.js" crossorigin="anonymous"></script>
   </head>
   <body>
+<!--  navigation bar content-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <!-- Navbar content -->
-    <a class="navbar-brand" style="margin-left:20px;" href="#">E-Commerce Site</a>
+    <a class="navbar-brand" style="margin-left:20px;" href="{% url 'homepage' %}">E-Commerce Site</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -23,14 +24,15 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link text-uppercase" href="#">{{user}} <span class="sr-only ">hello</span></a>
+          <a class="nav-link text-uppercase" href="{% url 'homepage' %}">{{user}} <span class="sr-only ">hello</span></a>
         </li>
 <!--        search bar-->
-        <form class="form-inline my-2 my-lg-0" style="margin-left:150px;" action="{% url 'search' %}" method="POST">
-          {% csrf_token %}
-          <input class="form-control mr-sm-2" type="search" name="searchobj" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+
+        <form class="form-inline my-2 my-lg-0" style="margin-left:150px;" action="{% url 'search' %}" method="get">
+          <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">
+          <input class="btn btn-outline-success my-2 my-sm-0" type="submit">
         </form>
+
 <!--        dropdown for categories-->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -60,35 +62,13 @@
     </div>
   </nav>
 
-
-
-
-
-
-
-
-    <div class="container text-center">
-      <br>
-    </div>
     <br>
-<!--    <div class="container">-->
-<!--    {% for product in products %}-->
-<!--      <h5><strong>{{product.name}}</strong></h5>-->
-<!--      <p>{{product.description}}</p>-->
-<!--      {% if product.discount_price %}-->
-<!--        <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>-->
-<!--        <em class="text-danger">Discounted Price: <span>&#8377;</span>{{product.discount_price}}</em>-->
-<!--      {% else %}-->
-<!--        <p class="text-primary">Price: <span>&#8377;</span>{{product.price}}</p>-->
-<!--      {% endif %}-->
-<!--      <h6 class="p-1 bg-success text-white text-center rounded" style="width:90px;">{{product.label}}</h6>-->
-<!--      <hr>-->
-<!--      {% endfor %}-->
-<!--    </div>-->
 
-<!--&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
+<!--    contents/items to show-->
+
     <div class="container">
       {% for product in page_obj %}
+      <img class="d-inline" src="{{product.image.url}}" alt="product's image" style="width:200px;">
         <h5 class="text-capitalize">
           <strong>
           <small><sup class="p-1 bg-success text-white text-center rounded">{{product.label}}</sup></small>
@@ -105,6 +85,7 @@
 <!--        <h6 class="p-1 bg-success text-white text-center rounded" style="width:90px;">{{product.label}}</h6>-->
         <hr>
       {% endfor %}
+
     </div>
 
     <!--    pagination-->

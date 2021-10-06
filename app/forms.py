@@ -4,6 +4,12 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField, UserCreationFor
 from .models import CustomerInfo
 
 
+# class PhotoForm(forms.ModelForm):
+#     class Meta:
+#         model = Products
+#         fields = ['image']
+
+
 class SignUpUsers(UserCreationForm):
     class Meta:
         model = User

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cloudinary.models import CloudinaryField
 
 
 # Create your models here.
@@ -7,7 +8,10 @@ from django.contrib.auth.models import User
 class CustomerInfo(models.Model):
     name = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(max_length=50)
-    user_image = models.TextField()
+    # user_image = models.TextField()
+    # cloudinary
+    user_image = CloudinaryField('image')
+    # ------
     locality = models.CharField(max_length=50)
     pincode = models.IntegerField()
     city = models.CharField(max_length=50)
@@ -45,6 +49,9 @@ class Products(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
     price = models.FloatField(default=0)
+    # cloudinary
+    image = CloudinaryField('image')
+    # ----------
     discount_price = models.FloatField(blank=True, null=True)
     label = models.CharField(choices=LABEL, max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -6,8 +6,7 @@ from django.core.files.storage import FileSystemStorage
 from .models import CustomerInfo, Products
 from django.core.paginator import Paginator
 from django.db.models import Q
-
-
+import cloudinary
 # Create your views here.
 
 
@@ -73,7 +72,10 @@ def user_login(request):
 
 def additional_details(request):
     if request.method == "POST":
-        image = request.FILES.get('image')
+        # image = request.FILES.get('image')
+        image = cloudinary.uploader.upload(request.FILES['image'])
+
+        print(image)
         gender = request.POST.get('gender')
         locality = request.POST.get('locality')
         pincode = request.POST.get('pincode')
@@ -83,14 +85,14 @@ def additional_details(request):
         print(image, gender)
         if image is not None:
             # ----------------------------
-            fs = FileSystemStorage()
-            pic_obj = fs.save(image.name, image)
-            file_url = fs.url(pic_obj)
+            # fs = FileSystemStorage()
+            # pic_obj = fs.save(image.name, image)
+            # file_url = fs.url(pic_obj)
             # ----------------------------
             newuser = CustomerInfo.objects.create(
                 name=request.user,
                 gender=gender,
-                user_image=file_url,
+                user_image=image['url'],
                 locality=locality,
                 pincode=pincode,
                 city=city,
@@ -123,20 +125,22 @@ def logout_user(request):
 
 
 def search_items(request):
-    if request.method == "POST":
-        search_obj = request.POST.get('searchobj')
-        # code for searching
-        search_result = Products.objects.filter(
-            Q(name__icontains=search_obj) | Q(description__icontains=search_obj) | Q(label__icontains=search_obj))
-        print(search_result)
-        # ------------------------
-        # paginating the search results
-        paginator = Paginator(search_result, 3, orphans=1)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        # context items
-        context = {
-            "page_obj": page_obj,
-        }
-        # ------------------------
-    return render(request, 'login.html')
+    print("-------", request.GET)
+    search_obj = request.GET.get('q')
+    # code for searching
+    print(search_obj)
+    search_result = Products.objects.filter(
+        Q(name__icontains=search_obj) | Q(description__icontains=search_obj) | Q(label__icontains=search_obj))
+    print(search_result)
+    # ------------------------
+    # paginating the search results
+    paginator = Paginator(search_result, 3, orphans=1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    # context items
+    context = {
+        "results": page_obj,
+        "search_obj": search_obj,
+    }
+    # ------------------------
+    return render(request, 'searchpage.html', context)
