@@ -178,32 +178,44 @@ def add_kart(request, pk):
         user=request.user,
         ordered=False,
         item=data,
+        quantity=1,
     )
-    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-    print(item.quantity, '------get')
-    if item:
-        item.quantity = item.quantity + 1
-        item.save()
-        print("exists", item.quantity)
-    print(data.slug)
     return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
 
 def remove_from_kart(request, pk):
     data = Products.objects.get(id=pk)
+    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    if item:
+        item.delete()
+    else:
+        print("nothing in cart")
+    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
+
+def increase_cart(request, pk):
+    data = Products.objects.get(id=pk)
+    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    if item:
+        if item.quantity == 0:
+            pass
+        else:
+            item.quantity = item.quantity + 1
+            item.save()
+    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+
+
+def decrease_cart(request, pk):
+    data = Products.objects.get(id=pk)
     item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
     if item:
         if item.quantity == 1:
-            item.delete()
-            print("success deleted ")
+            print("Can't remove anymore")
+        elif item.quantity == 0:
+            print("Can't remove, 0 items in cart")
         else:
             item.quantity = item.quantity - 1
             item.save()
-            print("exists", item.quantity)
-    else:
-        print("nothing in cart")
-    print(data.slug)
     return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
 
@@ -211,7 +223,7 @@ def open_cart(request):
     # -------------
     all_items = Kart.objects.filter(user=request.user)
     # -------------
-    print(all_items[0].item)
+    # print(all_items[0].item)
     context = {
         "total_kart_items": len(all_items),
         "products": all_items,

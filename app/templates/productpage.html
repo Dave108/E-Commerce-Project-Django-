@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Product Page</title>
+    <!-- fontawesome script button logos -->
+    <script src="https://kit.fontawesome.com/e672d1ec50.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <!--  navigation bar content-->
@@ -88,7 +90,8 @@
       {% endif%}
 
       <a href="{{data.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
-
+      <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></a>
+      <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></a>
       <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
 
       <a href="{% url 'cart' %}" class="btn btn-sm btn-warning ">GO TO CART ({{total_kart_items}} items in cart)</a>

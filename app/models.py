@@ -80,6 +80,16 @@ class Products(models.Model):
             "pk": self.pk
         })
 
+    def get_increase_cart_url(self):
+        return reverse("increase-cart", kwargs={
+            "pk": self.pk
+        })
+
+    def get_decrease_cart_url(self):
+        return reverse("decrease-cart", kwargs={
+            "pk": self.pk
+        })
+
 
 class Kart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
