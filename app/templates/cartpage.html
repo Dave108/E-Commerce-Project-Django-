@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Product Page</title>
+    <!-- fontawesome script button logos -->
+    <script src="https://kit.fontawesome.com/e672d1ec50.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <!--  navigation bar content-->
@@ -70,28 +72,31 @@
 
     <div class="container">
       <h1>inside cart</h1>
-      {% for product in products %}
-      <h6>{{ product.item }}</h6>
-      <img src="{{product.item.image.url}}" style="width:200px;">
-<!--      <h6>Quantity: {{ product.quantity }}</h6>-->
-
-      {% if product %}
-      <p><em>Quantity Selected: </em>{{product.quantity}}</p>
-      {% else %}
-      <p><em>Quantity Selected: </em>0</p>
-      {% endif%}
-
-      <a href="{{product.item.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
-
-      <a href="{{product.item.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
 
 
-      <br>
+      {% for kart in kart_list %}
+      <h6>{{ kart.name }}</h6>
+      <img src="{{kart.image}}" style="width:200px;">
+      <p><em>Quantity Selected: </em>{{ kart.quantity }}</p>
+
+      <form action="{% url 'increase-cart' kart.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></button>
+      </form>
+      <form action="{% url 'decrease-cart' kart.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></button>
+      </form>
+      <form action="{% url 'remove-from-cart' kart.id %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-sm btn-outline-danger" value="REMOVE FROM CART">
+      </form>
       <hr>
       {% endfor %}
+      <p>total price: {{total_kart_price}}</p>
+
+
     </div>
-
-
 
 
     <hr>

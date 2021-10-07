@@ -184,48 +184,112 @@ def add_kart(request, pk):
 
 
 def remove_from_kart(request, pk):
-    data = Products.objects.get(id=pk)
-    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-    if item:
-        item.delete()
+    if request.method == "POST":
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            item.delete()
+        else:
+            print("nothing in cart")
+        return HttpResponseRedirect(reverse("cart"))
     else:
-        print("nothing in cart")
-    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            item.delete()
+        else:
+            print("nothing in cart")
+        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
 
 def increase_cart(request, pk):
-    data = Products.objects.get(id=pk)
-    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-    if item:
-        if item.quantity == 0:
-            pass
-        else:
-            item.quantity = item.quantity + 1
-            item.save()
-    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+    if request.method == "POST":
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            if item.quantity == 0:
+                pass
+            else:
+                item.quantity = item.quantity + 1
+                item.save()
+        return HttpResponseRedirect(reverse("cart"))
+    else:
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            if item.quantity == 0:
+                pass
+            else:
+                item.quantity = item.quantity + 1
+                item.save()
+        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
 
 def decrease_cart(request, pk):
-    data = Products.objects.get(id=pk)
-    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-    if item:
-        if item.quantity == 1:
-            print("Can't remove anymore")
-        elif item.quantity == 0:
-            print("Can't remove, 0 items in cart")
-        else:
-            item.quantity = item.quantity - 1
-            item.save()
-    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+    if request.method == "POST":
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            if item.quantity == 1:
+                print("Can't remove anymore")
+            elif item.quantity == 0:
+                print("Can't remove, 0 items in cart")
+            else:
+                item.quantity = item.quantity - 1
+                item.save()
+        return HttpResponseRedirect(reverse("cart"))
+    else:
+        data = Products.objects.get(id=pk)
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        if item:
+            if item.quantity == 1:
+                print("Can't remove anymore")
+            elif item.quantity == 0:
+                print("Can't remove, 0 items in cart")
+            else:
+                item.quantity = item.quantity - 1
+                item.save()
+        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
 
 
 def open_cart(request):
     # -------------
-    all_items = Kart.objects.filter(user=request.user)
+    karts = Kart.objects.filter(user=request.user)
     # -------------
-    # print(all_items[0].item)
+    kart_list = []
+    total_kart_price = 0
+    if karts:
+        for kart in karts:
+
+            if kart.item.discount_price:
+                total_item_price = kart.item.discount_price * kart.quantity
+                dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
+                        'description': kart.item.description,
+                        'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                        'image': kart.item.image.url,
+                        'label': kart.item.label, 'total_price': total_item_price}
+                total_kart_price = total_kart_price + total_item_price
+            else:
+                total_item_price = kart.item.price * kart.quantity
+                dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
+                        'description': kart.item.description,
+                        'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                        'image': kart.item.image.url,
+                        'label': kart.item.label, 'total_price': total_item_price}
+                total_kart_price = total_kart_price + total_item_price
+            kart_list.append(dict)
+            print(dict)
+    print('/n', total_kart_price, '------------total kat price')
+    print('/n', kart_list, '------------kart LIST')
+    print('')
+    print('')
+    print('')
+    print('')
+    # -------------
     context = {
-        "total_kart_items": len(all_items),
-        "products": all_items,
+        "total_kart_items": len(karts),
+        "products": karts,
+        "total_kart_price": total_kart_price,
+        "kart_list": kart_list,
     }
     return render(request, 'cartpage.html', context)
