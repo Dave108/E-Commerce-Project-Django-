@@ -93,12 +93,32 @@ class Products(models.Model):
 
 class Kart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.quantity} of {self.item.name}"
+
+
+CHOICES = (
+    ('Cash on Delivery', 'Cash on Delivery'),
+    ('Net Banking', 'Net Banking'),
+    ('UPI', 'UPI'),
+    ('Debit Card', 'Debit Card'),
+    ('Credit Card', 'Credit Card'),
+)
+
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    items = models.ManyToManyField(Kart)
+    start_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField()
+    ordered = models.BooleanField(default=False)
+    payment_choice = models.CharField(choices=CHOICES, max_length=20)
+
+    def __str__(self):
+        return self.user.username
 
 
 @receiver(post_save, sender=Products)
