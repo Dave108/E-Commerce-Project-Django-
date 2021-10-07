@@ -86,13 +86,17 @@
       {% if kart %}
       <p><em>Quantity Selected: </em>{{kart.quantity}}</p>
       {% else %}
-      <p><em>Quantity Selected: </em>0</p>
+      <p><em>Quantity Selected: </em>0 Items</p>
       {% endif%}
 
       <a href="{{data.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
-      <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></a>
-      <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></a>
-      <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
+      {% if user.is_authenticated %}
+        {% if kart.quantity %}
+          <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></a>
+          <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></a>
+        {% endif %}
+        <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
+      {% endif %}
 
       <a href="{% url 'cart' %}" class="btn btn-sm btn-warning ">GO TO CART ({{total_kart_items}} items in cart)</a>
     </div>

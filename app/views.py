@@ -10,6 +10,12 @@ import cloudinary
 
 
 # Create your views here.
+def kart_items(request):
+    if request.user.is_authenticated:
+        all_items = Kart.objects.filter(user=request.user)
+        return len(all_items)
+    else:
+        return 0
 
 
 def homepage(request):
@@ -18,13 +24,13 @@ def homepage(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     # ----------------------
-    all_items = Kart.objects.filter(user=request.user)
+    items_in_kart = kart_items(request)  # calling function to get kart_total items
     # ----------------------
     # context items
     context = {
         "products": products,
         "page_obj": page_obj,
-        "total_kart_items": len(all_items),
+        "total_kart_items": items_in_kart,
     }
     return render(request, 'homepage.html', context)
 
@@ -144,13 +150,13 @@ def search_items(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     # --------------
-    all_items = Kart.objects.filter(user=request.user)
+    items_in_kart = kart_items(request)  # calling function to get kart_total items
     # --------------
     # context items
     context = {
         "results": page_obj,
         "search_obj": search_obj,
-        "total_kart_items": len(all_items),
+        "total_kart_items": items_in_kart,
     }
     # ------------------------
     return render(request, 'searchpage.html', context)
@@ -158,138 +164,155 @@ def search_items(request):
 
 def view_product(request, slug):
     data = Products.objects.get(slug=slug)
-    item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    if request.user.is_authenticated:
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+    else:
+        item = 0
     print(data.image.url, '------image')
     # -------------
-    all_items = Kart.objects.filter(user=request.user)
+    items_in_kart = kart_items(request)  # calling function to get kart_total items
     # -------------
-    print(len(all_items))
     context = {
         "data": data,
         "kart": item,
-        "total_kart_items": len(all_items),
+        "total_kart_items": items_in_kart,
     }
     return render(request, 'productpage.html', context)
 
 
 def add_kart(request, pk):
-    data = Products.objects.get(id=pk)
-    kart_data = Kart.objects.get_or_create(
-        user=request.user,
-        ordered=False,
-        item=data,
-        quantity=1,
-    )
-    return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+    if request.user.is_authenticated:
+        data = Products.objects.get(id=pk)
+        kart_data = Kart.objects.get_or_create(
+            user=request.user,
+            ordered=False,
+            item=data,
+            quantity=1,
+        )
+        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+    else:
+        return HttpResponseRedirect('/login/')
 
 
 def remove_from_kart(request, pk):
-    if request.method == "POST":
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            item.delete()
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                item.delete()
+            else:
+                print("nothing in cart")
+            return HttpResponseRedirect(reverse("cart"))
         else:
-            print("nothing in cart")
-        return HttpResponseRedirect(reverse("cart"))
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                item.delete()
+            else:
+                print("nothing in cart")
+            return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            item.delete()
-        else:
-            print("nothing in cart")
-        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+        return HttpResponseRedirect('/login/')
 
 
 def increase_cart(request, pk):
-    if request.method == "POST":
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            if item.quantity == 0:
-                pass
-            else:
-                item.quantity = item.quantity + 1
-                item.save()
-        return HttpResponseRedirect(reverse("cart"))
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                if item.quantity == 0:
+                    pass
+                else:
+                    item.quantity = item.quantity + 1
+                    item.save()
+            return HttpResponseRedirect(reverse("cart"))
+        else:
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                if item.quantity == 0:
+                    pass
+                else:
+                    item.quantity = item.quantity + 1
+                    item.save()
+            return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            if item.quantity == 0:
-                pass
-            else:
-                item.quantity = item.quantity + 1
-                item.save()
-        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+        return HttpResponseRedirect('/login/')
 
 
 def decrease_cart(request, pk):
-    if request.method == "POST":
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            if item.quantity == 1:
-                print("Can't remove anymore")
-            elif item.quantity == 0:
-                print("Can't remove, 0 items in cart")
-            else:
-                item.quantity = item.quantity - 1
-                item.save()
-        return HttpResponseRedirect(reverse("cart"))
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                if item.quantity == 1:
+                    print("Can't remove anymore")
+                elif item.quantity == 0:
+                    print("Can't remove, 0 items in cart")
+                else:
+                    item.quantity = item.quantity - 1
+                    item.save()
+            return HttpResponseRedirect(reverse("cart"))
+        else:
+            data = Products.objects.get(id=pk)
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            if item:
+                if item.quantity == 1:
+                    print("Can't remove anymore")
+                elif item.quantity == 0:
+                    print("Can't remove, 0 items in cart")
+                else:
+                    item.quantity = item.quantity - 1
+                    item.save()
+            return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
-        data = Products.objects.get(id=pk)
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
-        if item:
-            if item.quantity == 1:
-                print("Can't remove anymore")
-            elif item.quantity == 0:
-                print("Can't remove, 0 items in cart")
-            else:
-                item.quantity = item.quantity - 1
-                item.save()
-        return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
+        return HttpResponseRedirect('/login/')
 
 
 def open_cart(request):
-    # -------------
-    karts = Kart.objects.filter(user=request.user)
-    # -------------
-    kart_list = []
-    total_kart_price = 0
-    if karts:
-        for kart in karts:
+    if request.user.is_authenticated:
+        # -------------
+        karts = Kart.objects.filter(user=request.user)
+        # -------------
+        kart_list = []
+        total_kart_price = 0
+        if karts:
+            for kart in karts:
 
-            if kart.item.discount_price:
-                total_item_price = kart.item.discount_price * kart.quantity
-                dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
-                        'description': kart.item.description,
-                        'price': kart.item.price, 'discount_price': kart.item.discount_price,
-                        'image': kart.item.image.url,
-                        'label': kart.item.label, 'total_price': total_item_price}
-                total_kart_price = total_kart_price + total_item_price
-            else:
-                total_item_price = kart.item.price * kart.quantity
-                dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
-                        'description': kart.item.description,
-                        'price': kart.item.price, 'discount_price': kart.item.discount_price,
-                        'image': kart.item.image.url,
-                        'label': kart.item.label, 'total_price': total_item_price}
-                total_kart_price = total_kart_price + total_item_price
-            kart_list.append(dict)
-            print(dict)
-    print('/n', total_kart_price, '------------total kat price')
-    print('/n', kart_list, '------------kart LIST')
-    print('')
-    print('')
-    print('')
-    print('')
-    # -------------
-    context = {
-        "total_kart_items": len(karts),
-        "products": karts,
-        "total_kart_price": total_kart_price,
-        "kart_list": kart_list,
-    }
-    return render(request, 'cartpage.html', context)
+                if kart.item.discount_price:
+                    total_item_price = kart.item.discount_price * kart.quantity
+                    dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
+                            'description': kart.item.description,
+                            'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                            'image': kart.item.image.url,
+                            'label': kart.item.label, 'total_price': total_item_price}
+                    total_kart_price = total_kart_price + total_item_price
+                else:
+                    total_item_price = kart.item.price * kart.quantity
+                    dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
+                            'description': kart.item.description,
+                            'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                            'image': kart.item.image.url,
+                            'label': kart.item.label, 'total_price': total_item_price}
+                    total_kart_price = total_kart_price + total_item_price
+                kart_list.append(dict)
+                print(dict)
+        print('/n', total_kart_price, '------------total kat price')
+        print('/n', kart_list, '------------kart LIST')
+        print('')
+        print('')
+        print('')
+        print('')
+        # -------------
+        context = {
+            "total_kart_items": len(karts),
+            "products": karts,
+            "total_kart_price": total_kart_price,
+            "kart_list": kart_list,
+        }
+        return render(request, 'cartpage.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
