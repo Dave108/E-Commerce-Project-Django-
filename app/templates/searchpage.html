@@ -71,8 +71,8 @@
 <!--  search content-->
   <div class="container">
       {% for result in results %}
-      <img class="d-inline" src="{{result.image.url}}" alt="product's image" style="width:200px;">
-              <a href="{{result.get_product_url}}" class="btn btn-sm">product</a>
+      <a href="{{result.get_product_url}}" style="text-decoration: none;" class="text-dark">
+        <img class="d-inline" src="{{result.image.url}}" alt="product's image" style="width:200px;">
         <h5 class="text-capitalize">
           <strong>
           <small><sup class="p-1 bg-success text-white text-center rounded">{{result.label}}</sup></small>
@@ -80,6 +80,7 @@
           </strong>
         </h5>
         <p>{{result.description}}</p>
+      </a>
         {% if result.discount_price %}
           <del><small class="text-primary">Original Price: <span>&#8377;</span>{{result.price}}</small></del><br>
           <em class="text-danger">Discounted Price: only <span>&#8377;</span>{{result.discount_price}}</em>

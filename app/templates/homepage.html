@@ -72,9 +72,8 @@
 
     <div class="container">
       {% for product in page_obj %}
-      <img class="d-inline" src="{{product.image.url}}" alt="product's image" style="width:200px;">
-              <a href="{{product.get_product_url}}" class="btn btn-sm">product</a>
-
+      <a href="{{product.get_product_url}}" style="text-decoration: none;" class="text-dark">
+        <img class="d-inline" src="{{product.image.url}}" alt="product's image" style="width:200px;">
         <h5 class="text-capitalize">
           <strong>
           <small><sup class="p-1 bg-success text-white text-center rounded">{{product.label}}</sup></small>
@@ -82,6 +81,7 @@
           </strong>
         </h5>
         <p>{{product.description}}</p>
+      </a>
         {% if product.discount_price %}
           <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>
           <em class="text-danger">Discounted Price: only <span>&#8377;</span>{{product.discount_price}}</em>

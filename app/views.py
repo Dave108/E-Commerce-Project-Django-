@@ -278,40 +278,44 @@ def open_cart(request):
         karts = Kart.objects.filter(user=request.user)
         # -------------
         kart_list = []
+        total_original_kart_price = 0
         total_kart_price = 0
         if karts:
             for kart in karts:
-
                 if kart.item.discount_price:
                     total_item_price = kart.item.discount_price * kart.quantity
+                    total_original_price = kart.item.price * kart.quantity
                     dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
                             'description': kart.item.description,
                             'price': kart.item.price, 'discount_price': kart.item.discount_price,
                             'image': kart.item.image.url,
-                            'label': kart.item.label, 'total_price': total_item_price}
+                            'label': kart.item.label, 'total_price': total_item_price,
+                            'total_original_price': total_original_price,
+                            'product_page_url': kart.item.get_product_url()}
                     total_kart_price = total_kart_price + total_item_price
+                    total_original_kart_price = total_original_kart_price + total_original_price
                 else:
                     total_item_price = kart.item.price * kart.quantity
+                    total_original_price = kart.item.price * kart.quantity
                     dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
                             'description': kart.item.description,
-                            'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                            'price': kart.item.price, 'discount_price': kart.item.price,
                             'image': kart.item.image.url,
-                            'label': kart.item.label, 'total_price': total_item_price}
+                            'label': kart.item.label, 'total_price': total_item_price,
+                            'total_original_price': total_original_price,
+                            'product_page_url': kart.item.get_product_url()}
                     total_kart_price = total_kart_price + total_item_price
+                    total_original_kart_price = total_original_kart_price + total_original_price
                 kart_list.append(dict)
                 print(dict)
-        print('/n', total_kart_price, '------------total kat price')
-        print('/n', kart_list, '------------kart LIST')
-        print('')
-        print('')
-        print('')
-        print('')
+        discount = total_original_kart_price - total_kart_price
         # -------------
         context = {
             "total_kart_items": len(karts),
-            "products": karts,
+            "discount": discount,
             "total_kart_price": total_kart_price,
-            "kart_list": kart_list,
+            "total_original_kart_price": total_original_kart_price,
+            "kart_list": sorted(kart_list, key=lambda i: i['id'], reverse=True),
         }
         return render(request, 'cartpage.html', context)
     else:

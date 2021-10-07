@@ -9,7 +9,6 @@ from .models import CustomerInfo
 #         model = Products
 #         fields = ['image']
 
-
 class SignUpUsers(UserCreationForm):
     class Meta:
         model = User

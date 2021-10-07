@@ -92,8 +92,8 @@
       <a href="{{data.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
       {% if user.is_authenticated %}
         {% if kart.quantity %}
-          <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></a>
-          <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></a>
+          <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i>Add Items</a>
+          <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i>Remove Items</a>
         {% endif %}
         <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
       {% endif %}

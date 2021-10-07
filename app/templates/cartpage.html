@@ -66,37 +66,57 @@
       </div>
     </nav>
     <br>
-
-
-
-
+    <h1 class="text-center">My Cart ({{total_kart_items}})</h1>
+    <br>
     <div class="container">
-      <h1>Cart</h1>
+      <div class="row">
+        <div class=" col">
+          {% for kart in kart_list %}
+          <a href="{{kart.product_page_url}}" style="text-decoration: none;" class="text-dark">
+            <img src="{{kart.image}}" style="width:200px;">
+            <strong>
+            <small><sup class="p-1 bg-success text-white text-center rounded">{{kart.label}}</sup></small>
+            {{kart.name}}
+            </strong>
+          </a>
+          <del><h5>Original Price: <span>&#8377;</span>{{kart.total_original_price}}</h5></del>
+          <h5>Total Price After Discount: <span class="text-success" >&#8377;{{kart.total_price}}</span></h5>
+          <form action="{% url 'increase-cart' kart.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> Add Items</button>
+          </form>
+          <p><em>Quantity Selected: </em>{{ kart.quantity }}</p>
+          <form action="{% url 'decrease-cart' kart.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i> Remove Items</button>
+          </form>
+          <form action="{% url 'remove-from-cart' kart.id %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-sm btn-outline-danger" value="REMOVE FROM CART">
+          </form>
+          <hr>
+          {% endfor %}
+        </div>
 
-
-      {% for kart in kart_list %}
-      <h6>{{ kart.name }}</h6>
-      <img src="{{kart.image}}" style="width:200px;">
-      <p><em>Quantity Selected: </em>{{ kart.quantity }}</p>
-
-      <form action="{% url 'increase-cart' kart.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></button>
-      </form>
-      <form action="{% url 'decrease-cart' kart.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></button>
-      </form>
-      <form action="{% url 'remove-from-cart' kart.id %}" method="POST">
-        {% csrf_token %}
-        <input type="submit" class="btn btn-sm btn-outline-danger" value="REMOVE FROM CART">
-      </form>
-      <hr>
-      {% endfor %}
-      <p>total price: {{total_kart_price}}</p>
-
-
+        <div class=" p-3 mb-2 bg-light text-dark col">
+          <h4>PRICE DETAILS</h4>
+          <hr>
+          <p>Total Original Price (
+            {% if total_kart_items != 1 and total_kart_items != 0%}
+              {{total_kart_items}} items
+              {% else %}
+              {{total_kart_items}} item
+            {% endif %}
+            ) : {{total_original_kart_price}}</p>
+          <p>Discount : <span class="text-success"> -{{discount}}</span></p>
+          <hr>
+          <b>Final Price: {{total_kart_price}}</b>
+          <p class="text-success"> You will save <span>&#8377;</span>{{discount}} on this order</p>
+        </div>
+      </div>
     </div>
+
+
 
 
     <hr>
