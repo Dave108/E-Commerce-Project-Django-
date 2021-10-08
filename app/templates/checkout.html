@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Checkout</title>
+  </head>
+  <body>
+    <h1 class="text-center">Payment</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="container wow fadeIn">
+
+      <!-- Heading -->
+      <h2 class="my-5 h2 text-center">Checkout form</h2>
+
+      <!--Grid row-->
+      <div class="row">
+
+        <!--Grid column-->
+        <div class="col-md-8 mb-4">
+
+          <!--Card-->
+          <div class="card">
+
+            <!--Card content-->
+            <form method="POST" class="card-body">
+            {% csrf_token %}
+              <!--address-->
+              <div class="md-form mb-5">
+                <label class="">Street Address: </label>
+                <input class="form-control sm-3" name="street_address" type="text" placeholder="Street name" required>
+              </div>
+
+              <!--address-2-->
+              <div class="md-form mb-5">
+                <label class="">Apartment Address: </label>
+                <input class="form-control" name="apartment_address" type="text" placeholder="Apartment address" required>
+              </div>
+
+              <!--Grid row-->
+              <div class="row">
+
+                <!--Grid column-->
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <label>Country: </label>
+                  <input type="text" name="country" placeholder="Country name" class="form-control" required>
+                </div>
+                <!--Grid column-->
+
+                <!--Grid column-->
+                <div class="col-lg-4 col-md-6 mb-4">
+
+                  <label >Zip: </label>
+                  <input type="number" name="zip" maxlength="10" placeholder="PIN-CODE" class="form-control" required>
+                  <div class="invalid-feedback">
+                    Zip code required.
+                  </div>
+
+                </div>
+                <!--Grid column-->
+
+              </div>
+              <!--Grid row-->
+
+              <hr>
+
+              <div class="d-block my-3">
+
+                <label class="mr-sm-2" for="inlineFormCustomSelect">Payment Choice:</label>
+                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="payment_choice" required>
+                  <option selected value="CD">Cash on Delivery</option>
+                  <option value="NB">Net Banking</option>
+                  <option value="UPI">UPI</option>
+                  <option value="DC">Debit Card</option>
+                  <option value="CC">Credit Card</option>
+                </select>
+              </div>
+
+              <hr class="mb-4">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to Checkout/Order</button>
+
+            </form>
+
+          </div>
+          <!--/.Card-->
+
+        </div>
+        <!--Grid column-->
+
+          <!--Grid column-->
+        <div class="col-md-4 mb-4">
+
+          <!-- Heading -->
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Your cart</span>
+            <span class="badge badge-secondary badge-pill">
+            {% if total_kart_items != 1 and total_kart_items != 0%}
+              {{total_kart_items}} items
+              {% else %}
+              {{total_kart_items}} item
+            {% endif %}
+            </span>
+          </h4>
+
+          <!-- Cart -->
+          <ul class="list-group mb-3 z-depth-1">
+            <li class="list-group-item d-flex justify-content-between lh-condensed">
+              <div>
+                <h6 class="my-0">
+                {% if total_kart_items != 1 and total_kart_items != 0%}
+                  {{total_kart_items}} items in the cart
+                  {% else %}
+                  {{total_kart_items}} item in the cart
+                {% endif %}
+                </h6>
+              </div>
+            </li>
+
+
+            {% comment %} <li class="list-group-item d-flex justify-content-between bg-light">
+              <div class="text-success">
+                <h6 class="my-0">Promo code</h6>
+                <small>EXAMPLECODE</small>
+              </div>
+              <span class="text-success">-$0</span>
+            </li> {% endcomment %}
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total (RS)</span>
+              <strong><span>&#8377;</span>{{ total_kart_price }}</strong>
+            </li>
+          </ul>
+          <!-- Cart -->
+
+        </div>
+
+      </div>
+      <!--Grid row-->
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

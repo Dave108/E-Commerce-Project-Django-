@@ -93,6 +93,47 @@ class Products(models.Model):
 
 class Kart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False)
+    item = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.quantity} of {self.item.name}"
+
+    def get_total_item_price(self):
+        if self.item.discount_price:
+            print("discount in model----------------------------------------")
+            return self.item.discount_price * self.quantity
+        else:
+            print("NOOOOOO discount in model----------------------------------------")
+            return self.item.price * self.quantity
+
+    def get_total_original_price(self):
+        return self.item.price * self.quantity
+
+
+CHOICES = (
+    ('CD', 'Cash on Delivery'),
+    ('NB', 'Net Banking'),
+    ('UPI', 'UPI'),
+    ('DC', 'Debit Card'),
+    ('CC', 'Credit Card'),
+)
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    amount = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    payment_choice = models.CharField(choices=CHOICES, max_length=20)
+
+    def __str__(self):
+        return self.user.username
+
+
+class OrderedItems(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
 
@@ -100,22 +141,26 @@ class Kart(models.Model):
         return f"{self.quantity} of {self.item.name}"
 
 
-CHOICES = (
-    ('Cash on Delivery', 'Cash on Delivery'),
-    ('Net Banking', 'Net Banking'),
-    ('UPI', 'UPI'),
-    ('Debit Card', 'Debit Card'),
-    ('Credit Card', 'Credit Card'),
-)
-
-
-class Order(models.Model):
+class OrderPlaced(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    items = models.ManyToManyField(Kart)
+    items = models.ManyToManyField(OrderedItems)
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
-    payment_choice = models.CharField(choices=CHOICES, max_length=20)
+    original_price = models.FloatField(default=0)
+    final_price = models.FloatField(default=0)
+    payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+
+
+class CheckoutAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    street_address = models.CharField(max_length=100)
+    apartment_address = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    zip = models.IntegerField()
 
     def __str__(self):
         return self.user.username

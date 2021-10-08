@@ -3,10 +3,11 @@ from .forms import SignUpUsers, AdditionalDetails
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.files.storage import FileSystemStorage
-from .models import CustomerInfo, Products, Kart
+from .models import CustomerInfo, Products, Kart, OrderPlaced, CheckoutAddress, Payment, OrderedItems
 from django.core.paginator import Paginator
 from django.db.models import Q
 import cloudinary
+import datetime
 
 
 # Create your views here.
@@ -282,41 +283,100 @@ def open_cart(request):
         total_kart_price = 0
         if karts:
             for kart in karts:
-                if kart.item.discount_price:
-                    total_item_price = kart.item.discount_price * kart.quantity
-                    total_original_price = kart.item.price * kart.quantity
-                    dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
-                            'description': kart.item.description,
-                            'price': kart.item.price, 'discount_price': kart.item.discount_price,
-                            'image': kart.item.image.url,
-                            'label': kart.item.label, 'total_price': total_item_price,
-                            'total_original_price': total_original_price,
-                            'product_page_url': kart.item.get_product_url()}
-                    total_kart_price = total_kart_price + total_item_price
-                    total_original_kart_price = total_original_kart_price + total_original_price
-                else:
-                    total_item_price = kart.item.price * kart.quantity
-                    total_original_price = kart.item.price * kart.quantity
-                    dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
-                            'description': kart.item.description,
-                            'price': kart.item.price, 'discount_price': kart.item.price,
-                            'image': kart.item.image.url,
-                            'label': kart.item.label, 'total_price': total_item_price,
-                            'total_original_price': total_original_price,
-                            'product_page_url': kart.item.get_product_url()}
-                    total_kart_price = total_kart_price + total_item_price
-                    total_original_kart_price = total_original_kart_price + total_original_price
+                total_item_price = kart.get_total_item_price()
+                total_original_price = kart.get_total_original_price()
+                dict = {'id': kart.item.id, 'name': kart.item.name, 'quantity': kart.quantity,
+                        'description': kart.item.description,
+                        'price': kart.item.price, 'discount_price': kart.item.discount_price,
+                        'image': kart.item.image.url,
+                        'label': kart.item.label, 'total_price': total_item_price,
+                        'total_original_price': total_original_price,
+                        'product_page_url': kart.item.get_product_url()}
+                total_kart_price = total_kart_price + total_item_price
+                total_original_kart_price = total_original_kart_price + total_original_price
+
                 kart_list.append(dict)
-                print(dict)
-        discount = total_original_kart_price - total_kart_price
+                # print(dict)
+        total_discount = total_original_kart_price - total_kart_price
         # -------------
         context = {
             "total_kart_items": len(karts),
-            "discount": discount,
+            "discount": total_discount,
             "total_kart_price": total_kart_price,
             "total_original_kart_price": total_original_kart_price,
             "kart_list": sorted(kart_list, key=lambda i: i['id'], reverse=True),
         }
         return render(request, 'cartpage.html', context)
+    else:
+        return HttpResponseRedirect('/login/')
+
+
+def open_checkout(request):
+    if request.user.is_authenticated:
+        # --------------
+        karts = Kart.objects.filter(user=request.user)
+        total_original_kart_price = 0
+        total_kart_price = 0
+        if karts:
+            for kart in karts:
+                total_kart_price = total_kart_price + kart.get_total_item_price()
+                total_original_kart_price = total_original_kart_price + kart.get_total_original_price()
+        # ---------------
+        if request.method == "POST":
+            # ---------------
+
+            ordered_list = []
+            for kart in karts:
+                ord_items = OrderedItems.objects.create(
+                    user=request.user,
+                    ordered=True,
+                    item=kart.item,
+                    quantity=kart.quantity,
+                )
+                ordered_list.append(ord_items)
+            print(ordered_list)
+            # ---------------
+            street_address = request.POST.get('street_address')
+            apartment_address = request.POST.get('apartment_address')
+            country = request.POST.get('country')
+            zip = request.POST.get('zip')
+            payment_choice = request.POST.get('payment_choice')
+            address = CheckoutAddress.objects.create(
+                user=request.user,
+                street_address=street_address,
+                apartment_address=apartment_address,
+                country=country,
+                zip=zip,
+            )
+            print("Added address")
+            payment_obj = Payment.objects.create(
+                user=request.user,
+                amount=total_kart_price,
+                payment_choice=payment_choice,
+            )
+            print("payment created")
+            obj = OrderPlaced.objects.create(
+                user=request.user,
+                ordered_date=datetime.date.today(),
+                ordered=True,
+                original_price=total_original_kart_price,
+                final_price=total_kart_price,
+                payment_id=payment_obj,
+            )
+            obj.items.set(ordered_list)
+            obj.save()
+            print("Order placed")
+            karts.delete()
+            print("kart deleted")
+            return HttpResponseRedirect(reverse('homepage'))
+        else:
+            # -------------
+            print(total_kart_price, 'price after discount')
+            # -------------
+            context = {
+                "total_kart_price": total_kart_price,
+                "total_kart_items": len(karts)
+            }
+        return render(request, 'checkout.html', context)
     else:
         return HttpResponseRedirect('/login/')
