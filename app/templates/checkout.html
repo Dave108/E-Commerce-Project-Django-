@@ -45,13 +45,13 @@
               <!--address-->
               <div class="md-form mb-5">
                 <label class="">Street Address: </label>
-                <input class="form-control sm-3" name="street_address" type="text" placeholder="Street name" required>
+                <input class="form-control sm-3" name="street_address" type="text" placeholder="Street name" value="{{address.street_address}}" required>
               </div>
 
               <!--address-2-->
               <div class="md-form mb-5">
                 <label class="">Apartment Address: </label>
-                <input class="form-control" name="apartment_address" type="text" placeholder="Apartment address" required>
+                <input class="form-control" name="apartment_address" type="text" placeholder="Apartment address" value="{{address.apartment_address}}" required>
               </div>
 
               <!--Grid row-->
@@ -60,7 +60,7 @@
                 <!--Grid column-->
                 <div class="col-lg-4 col-md-12 mb-4">
                   <label>Country: </label>
-                  <input type="text" name="country" placeholder="Country name" class="form-control" required>
+                  <input type="text" name="country" placeholder="Country name" class="form-control" value="{{address.country}}" required>
                 </div>
                 <!--Grid column-->
 
@@ -68,7 +68,7 @@
                 <div class="col-lg-4 col-md-6 mb-4">
 
                   <label >Zip: </label>
-                  <input type="number" name="zip" maxlength="10" placeholder="PIN-CODE" class="form-control" required>
+                  <input type="number" name="zip" maxlength="10" placeholder="PIN-CODE" class="form-control" value="{{address.zip}}" required>
                   <div class="invalid-feedback">
                     Zip code required.
                   </div>

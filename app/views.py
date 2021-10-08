@@ -315,68 +315,74 @@ def open_checkout(request):
     if request.user.is_authenticated:
         # --------------
         karts = Kart.objects.filter(user=request.user)
-        total_original_kart_price = 0
-        total_kart_price = 0
         if karts:
-            for kart in karts:
-                total_kart_price = total_kart_price + kart.get_total_item_price()
-                total_original_kart_price = total_original_kart_price + kart.get_total_original_price()
-        # ---------------
-        if request.method == "POST":
+            total_original_kart_price = 0
+            total_kart_price = 0
+            if karts:
+                for kart in karts:
+                    total_kart_price = total_kart_price + kart.get_total_item_price()
+                    total_original_kart_price = total_original_kart_price + kart.get_total_original_price()
             # ---------------
+            if request.method == "POST":
+                # ---------------
 
-            ordered_list = []
-            for kart in karts:
-                ord_items = OrderedItems.objects.create(
+                ordered_list = []
+                for kart in karts:
+                    ord_items = OrderedItems.objects.create(
+                        user=request.user,
+                        ordered=True,
+                        item=kart.item,
+                        quantity=kart.quantity,
+                    )
+                    ordered_list.append(ord_items)
+                print(ordered_list)
+                # ---------------
+                street_address = request.POST.get('street_address')
+                apartment_address = request.POST.get('apartment_address')
+                country = request.POST.get('country')
+                zip = request.POST.get('zip')
+                payment_choice = request.POST.get('payment_choice')
+                address = CheckoutAddress.objects.get_or_create(
                     user=request.user,
-                    ordered=True,
-                    item=kart.item,
-                    quantity=kart.quantity,
+                    street_address=street_address,
+                    apartment_address=apartment_address,
+                    country=country,
+                    zip=zip,
                 )
-                ordered_list.append(ord_items)
-            print(ordered_list)
-            # ---------------
-            street_address = request.POST.get('street_address')
-            apartment_address = request.POST.get('apartment_address')
-            country = request.POST.get('country')
-            zip = request.POST.get('zip')
-            payment_choice = request.POST.get('payment_choice')
-            address = CheckoutAddress.objects.create(
-                user=request.user,
-                street_address=street_address,
-                apartment_address=apartment_address,
-                country=country,
-                zip=zip,
-            )
-            print("Added address")
-            payment_obj = Payment.objects.create(
-                user=request.user,
-                amount=total_kart_price,
-                payment_choice=payment_choice,
-            )
-            print("payment created")
-            obj = OrderPlaced.objects.create(
-                user=request.user,
-                ordered_date=datetime.date.today(),
-                ordered=True,
-                original_price=total_original_kart_price,
-                final_price=total_kart_price,
-                payment_id=payment_obj,
-            )
-            obj.items.set(ordered_list)
-            obj.save()
-            print("Order placed")
-            karts.delete()
-            print("kart deleted")
-            return HttpResponseRedirect(reverse('homepage'))
+                print("Added address")
+                payment_obj = Payment.objects.create(
+                    user=request.user,
+                    amount=total_kart_price,
+                    payment_choice=payment_choice,
+                )
+                print("payment created")
+                obj = OrderPlaced.objects.create(
+                    user=request.user,
+                    ordered_date=datetime.date.today(),
+                    ordered=True,
+                    original_price=total_original_kart_price,
+                    final_price=total_kart_price,
+                    payment_id=payment_obj,
+                )
+                obj.items.set(ordered_list)
+                obj.save()
+                print("Order placed")
+                karts.delete()
+                print("kart deleted")
+                return HttpResponseRedirect(reverse("homepage"))
+            else:
+                # -------------
+                print(total_kart_price, 'price after discount')
+                # -------------
+                address = CheckoutAddress.objects.filter(user=request.user).first()
+                context = {
+                    "total_kart_price": total_kart_price,
+                    "total_kart_items": len(karts),
+                    "address": address,
+                }
+            return render(request, 'checkout.html', context)
         else:
-            # -------------
-            print(total_kart_price, 'price after discount')
-            # -------------
-            context = {
-                "total_kart_price": total_kart_price,
-                "total_kart_items": len(karts)
-            }
-        return render(request, 'checkout.html', context)
+            print("No items in cart")
+            return HttpResponseRedirect('/product/cart/')
     else:
         return HttpResponseRedirect('/login/')
