@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 import cloudinary
 import datetime
+from django.contrib import messages
 
 
 # Create your views here.
@@ -70,11 +71,14 @@ def user_login(request):
                     check_data = check.check_all_details()
                     print(check_data, '-------check')
                     if check_data:
+                        messages.error(request, 'Welcome to MyShopE')
                         return HttpResponseRedirect(reverse('homepage'))  # reverse redirect
                     else:
+                        messages.error(request, 'Add details first!')
                         return HttpResponseRedirect('/additionaldetails/')
                 else:
                     print("else part")
+                    messages.error(request, 'Add details first!')
                     return HttpResponseRedirect('/additionaldetails/')
     fm = AuthenticationForm()
     context = {
@@ -112,6 +116,7 @@ def additional_details(request):
                 state=state,
                 country=country,
             )
+            messages.error(request, 'Welcome to MyShopE!')
             return HttpResponseRedirect(reverse('homepage'))
         else:
             newuser = CustomerInfo.objects.create(
@@ -124,6 +129,7 @@ def additional_details(request):
                 state=state,
                 country=country,
             )
+            messages.error(request, 'Welcome to MyShopE!')
             return HttpResponseRedirect(reverse('homepage'))
     fm = AdditionalDetails()
     context = {
@@ -134,6 +140,7 @@ def additional_details(request):
 
 def logout_user(request):
     logout(request)
+    messages.error(request, 'Thanks for shopping with us ')
     return HttpResponseRedirect('/login/')
 
 
@@ -160,6 +167,7 @@ def search_items(request):
         "total_kart_items": items_in_kart,
     }
     # ------------------------
+    messages.error(request, 'You searched for! '+' " '+search_obj+' " ')
     return render(request, 'searchpage.html', context)
 
 
@@ -190,8 +198,10 @@ def add_kart(request, pk):
             item=data,
             quantity=1,
         )
+        messages.error(request, 'Added to cart')
         return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
 
 
@@ -202,18 +212,23 @@ def remove_from_kart(request, pk):
             item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
             if item:
                 item.delete()
+                messages.error(request, 'Item Removed')
             else:
                 print("nothing in cart")
+                messages.error(request, 'Nothing in cart')
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
             item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
             if item:
                 item.delete()
+                messages.error(request, 'Item Removed')
             else:
                 print("nothing in cart")
+                messages.error(request, 'Nothing in cart')
             return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
 
 
@@ -228,6 +243,7 @@ def increase_cart(request, pk):
                 else:
                     item.quantity = item.quantity + 1
                     item.save()
+                    messages.error(request, 'Increased qunatity!')
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
@@ -238,8 +254,10 @@ def increase_cart(request, pk):
                 else:
                     item.quantity = item.quantity + 1
                     item.save()
+                    messages.error(request, 'Increased qunatity!')
             return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
 
 
@@ -256,6 +274,7 @@ def decrease_cart(request, pk):
                 else:
                     item.quantity = item.quantity - 1
                     item.save()
+                    messages.error(request, 'Quantity Decreased!')
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
@@ -268,8 +287,10 @@ def decrease_cart(request, pk):
                 else:
                     item.quantity = item.quantity - 1
                     item.save()
+                    messages.error(request, 'Quantity Decreased!')
             return HttpResponseRedirect(reverse("product", kwargs={"slug": data.slug}))
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
 
 
@@ -308,6 +329,7 @@ def open_cart(request):
         }
         return render(request, 'cartpage.html', context)
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
 
 
@@ -369,7 +391,16 @@ def open_checkout(request):
                 print("Order placed")
                 karts.delete()
                 print("kart deleted")
-                return HttpResponseRedirect(reverse("homepage"))
+                karts.delete()
+                print("kart deleted")
+                address = CheckoutAddress.objects.filter(user=request.user).last()
+                context = {
+                    "address": address,
+                    "total_items": len(ordered_list),
+                    "karts": ordered_list,
+                }
+                messages.error(request, 'Congratulations! Order Placed...')
+                return render(request, 'orderplaced.html', context)
             else:
                 # -------------
                 print(total_kart_price, 'price after discount')
@@ -383,6 +414,8 @@ def open_checkout(request):
             return render(request, 'checkout.html', context)
         else:
             print("No items in cart")
+            messages.error(request, 'No items in cart!')
             return HttpResponseRedirect('/product/cart/')
     else:
+        messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')

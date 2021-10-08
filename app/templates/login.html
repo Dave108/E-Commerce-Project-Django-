@@ -11,6 +11,13 @@
     <title>LOGIN</title>
   </head>
   <body>
+  {% if messages %}
+      <div class="container-sm text-center p-3 mb-2 bg-danger text-white">
+            {% for message in messages %}
+            <h5 {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h5>
+            {% endfor %}
+      </div>
+  {% endif %}
   <div class="container-sm">
     <h1>Welcome to Signup page</h1>
     <form action="" method="POST">

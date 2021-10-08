@@ -68,6 +68,16 @@
     <br>
     <h1 class="text-center">My Cart ({{total_kart_items}})</h1>
     <br>
+
+      {% if messages %}
+      <div class="container-sm text-center p-3 mb-2 bg-danger text-white">
+            {% for message in messages %}
+            <h5 {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h5>
+            {% endfor %}
+      </div>
+      {% endif %}
+
+    <br>
     <div class="container">
       <div class="row">
         <div class=" col">
