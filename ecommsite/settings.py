@@ -103,8 +103,7 @@ WSGI_APPLICATION = 'ecommsite.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default="postgres://gdwelyngksdtwf:6b81455f59ef0bd173df2e8bd814102b1fdfb0b8959c0d3ef6f561aff4e8204a@ec2-18"
-                "-211-194-36.compute-1.amazonaws.com:5432/dd8eokfp4npqrp "
+        default="postgres://gdwelyngksdtwf:6b81455f59ef0bd173df2e8bd814102b1fdfb0b8959c0d3ef6f561aff4e8204a@ec2-18-211-194-36.compute-1.amazonaws.com:5432/dd8eokfp4npqrp"
     )
 }
 # Password validation
