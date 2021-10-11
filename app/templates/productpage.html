@@ -82,13 +82,15 @@
 
     <div class="container">
 
-      <img src="{{data.image.url}}" alt="Product Image " style="width:200px;">
+      <img src="{{data.image.url}}" alt="Product Image " style="width:350px;">
       <h5>{{ data.name }}</h5>
       <p>{{data.description}}</p>
-      <p>{{data.price}}</p>
-      <p>{{data.label}}</p>
+      <small><sup class="p-1 bg-success text-white text-center rounded">{{data.label}}</sup></small>
       {% if data.discount_price %}
-      <p>{{data.discount_price}}</p>
+      <del><small class="text-primary">Original Price: <span>&#8377;</span>{{data.price}}</small></del><br>
+      <em class="text-danger">Discounted Price: only <span>&#8377;</span>{{data.discount_price}}</em>
+      {% else %}
+      <p class="text-primary">Price: <span>&#8377;</span>{{data.price}}</p>
       {% endif %}
 
 <!--      -&#45;&#45;&#45;&#45;-->
@@ -102,8 +104,8 @@
       <a href="{{data.get_add_checkout_url}}" class="btn btn-sm btn-outline-primary">ADD TO CART</a>
       {% if user.is_authenticated %}
         {% if kart.quantity %}
-          <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i>Add Items</a>
-          <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i>Remove Items</a>
+          <a href="{{data.get_increase_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></a>
+          <a href="{{data.get_decrease_cart_url}}" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></a>
         {% endif %}
         <a href="{{data.get_remove_checkout_url}}" class="btn btn-sm btn-outline-danger">REMOVE FROM CART</a>
       {% endif %}

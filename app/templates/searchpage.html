@@ -25,6 +25,9 @@
         <li class="nav-item active">
           <a class="nav-link text-uppercase" href="{% url 'homepage' %}">{{user}} <span class="sr-only ">hello</span></a>
         </li>
+        <li class="nav-item active">
+            <a class="nav-link text-uppercase" href="{% url 'orders' %}">My Orders</a>
+        </li>
 <!--        search bar-->
 
 
@@ -77,6 +80,14 @@
 <!--  search content-->
   <div class="container">
       {% for result in results %}
+
+
+
+
+
+
+
+
       <a href="{{result.get_product_url}}" style="text-decoration: none;" class="text-dark">
         <img class="d-inline" src="{{result.image.url}}" alt="product's image" style="width:200px;">
         <h5 class="text-capitalize">

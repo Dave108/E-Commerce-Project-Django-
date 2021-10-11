@@ -89,7 +89,14 @@
           {{product.name}}
           </strong>
         </h5>
-        <p>{{product.description}}</p>
+        <p style="
+          display:inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100ch;">{{product.description}}
+        </p>
+        <br>
       </a>
         {% if product.discount_price %}
           <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>

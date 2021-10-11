@@ -96,12 +96,12 @@
           <h5>Total Price After Discount: <span class="text-success" >&#8377;{{kart.total_price}}</span></h5>
           <form action="{% url 'increase-cart' kart.id %}" method="POST">
             {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i> Add Items</button>
+            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-plus"></i></button>
           </form>
           <p><em>Quantity Selected: </em>{{ kart.quantity }}</p>
           <form action="{% url 'decrease-cart' kart.id %}" method="POST">
             {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i> Remove Items</button>
+            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-minus"></i></button>
           </form>
           <form action="{% url 'remove-from-cart' kart.id %}" method="POST">
             {% csrf_token %}
