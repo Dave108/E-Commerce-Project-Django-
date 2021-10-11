@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomerInfo, Category, Products, Kart, OrderPlaced, CheckoutAddress, Payment, OrderedItems
+from .models import CustomerInfo, Category, Products, Kart, OrderPlaced, CheckoutAddress, Payment
 
 
 # Register your models here.
@@ -25,12 +25,13 @@ class ProductsAdmin(admin.ModelAdmin):
 
 @admin.register(Kart)
 class KartAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'ordered', 'item', 'quantity']
+    list_display = ['id', 'user', 'ordered', 'item', 'quantity', 'is_deleted']
 
 
 @admin.register(OrderPlaced)
 class OrderPlacedAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'start_date', 'ordered_date', 'ordered', 'original_price', 'final_price', 'payment_id']
+    list_display = ['id', 'user', 'start_date', 'ordered_date', 'ordered', 'delivered', 'original_price', 'final_price',
+                    'payment_id']
 
 
 @admin.register(CheckoutAddress)
@@ -42,7 +43,3 @@ class CheckoutAddressAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'amount', 'timestamp', 'payment_choice']
 
-
-@admin.register(OrderedItems)
-class OrderedItemsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'ordered', 'item', 'quantity']

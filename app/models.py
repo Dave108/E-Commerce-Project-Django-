@@ -96,6 +96,7 @@ class Kart(models.Model):
     ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.quantity} of {self.item.name}"
@@ -131,22 +132,13 @@ class Payment(models.Model):
         return self.user.username
 
 
-class OrderedItems(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ordered = models.BooleanField(default=False)
-    item = models.ForeignKey(Products, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.quantity} of {self.item.name}"
-
-
 class OrderPlaced(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    items = models.ManyToManyField(OrderedItems)
+    items = models.ManyToManyField(Kart)
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
     ordered = models.BooleanField(default=False)
+    delivered = models.BooleanField(default=False)
     original_price = models.FloatField(default=0)
     final_price = models.FloatField(default=0)
     payment_id = models.ForeignKey(Payment, on_delete=models.CASCADE)

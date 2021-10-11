@@ -3,7 +3,7 @@ from .forms import SignUpUsers, AdditionalDetails
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.files.storage import FileSystemStorage
-from .models import CustomerInfo, Products, Kart, OrderPlaced, CheckoutAddress, Payment, OrderedItems
+from .models import CustomerInfo, Products, Kart, OrderPlaced, CheckoutAddress, Payment
 from django.core.paginator import Paginator
 from django.db.models import Q
 import cloudinary
@@ -14,7 +14,7 @@ from django.contrib import messages
 # Create your views here.
 def kart_items(request):
     if request.user.is_authenticated:
-        all_items = Kart.objects.filter(user=request.user)
+        all_items = Kart.objects.filter(user=request.user, is_deleted=False)
         return len(all_items)
     else:
         return 0
@@ -167,14 +167,14 @@ def search_items(request):
         "total_kart_items": items_in_kart,
     }
     # ------------------------
-    messages.error(request, 'You searched for! '+' " '+search_obj+' " ')
+    messages.error(request, 'You searched for! ' + ' " ' + search_obj + ' " ')
     return render(request, 'searchpage.html', context)
 
 
 def view_product(request, slug):
     data = Products.objects.get(slug=slug)
     if request.user.is_authenticated:
-        item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+        item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
     else:
         item = 0
     print(data.image.url, '------image')
@@ -209,7 +209,7 @@ def remove_from_kart(request, pk):
     if request.user.is_authenticated:
         if request.method == "POST":
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 item.delete()
                 messages.error(request, 'Item Removed')
@@ -219,7 +219,7 @@ def remove_from_kart(request, pk):
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 item.delete()
                 messages.error(request, 'Item Removed')
@@ -236,7 +236,7 @@ def increase_cart(request, pk):
     if request.user.is_authenticated:
         if request.method == "POST":
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 if item.quantity == 0:
                     pass
@@ -247,7 +247,7 @@ def increase_cart(request, pk):
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 if item.quantity == 0:
                     pass
@@ -265,7 +265,7 @@ def decrease_cart(request, pk):
     if request.user.is_authenticated:
         if request.method == "POST":
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 if item.quantity == 1:
                     print("Can't remove anymore")
@@ -278,7 +278,7 @@ def decrease_cart(request, pk):
             return HttpResponseRedirect(reverse("cart"))
         else:
             data = Products.objects.get(id=pk)
-            item = Kart.objects.filter(user=request.user, ordered=False, item=data).first()
+            item = Kart.objects.filter(user=request.user, ordered=False, item=data, is_deleted=False).first()
             if item:
                 if item.quantity == 1:
                     print("Can't remove anymore")
@@ -297,7 +297,7 @@ def decrease_cart(request, pk):
 def open_cart(request):
     if request.user.is_authenticated:
         # -------------
-        karts = Kart.objects.filter(user=request.user)
+        karts = Kart.objects.filter(user=request.user, is_deleted=False)
         # -------------
         kart_list = []
         total_original_kart_price = 0
@@ -336,7 +336,7 @@ def open_cart(request):
 def open_checkout(request):
     if request.user.is_authenticated:
         # --------------
-        karts = Kart.objects.filter(user=request.user)
+        karts = Kart.objects.filter(user=request.user, is_deleted=False)
         if karts:
             total_original_kart_price = 0
             total_kart_price = 0
@@ -346,19 +346,6 @@ def open_checkout(request):
                     total_original_kart_price = total_original_kart_price + kart.get_total_original_price()
             # ---------------
             if request.method == "POST":
-                # ---------------
-
-                ordered_list = []
-                for kart in karts:
-                    ord_items = OrderedItems.objects.create(
-                        user=request.user,
-                        ordered=True,
-                        item=kart.item,
-                        quantity=kart.quantity,
-                    )
-                    ordered_list.append(ord_items)
-                print(ordered_list)
-                # ---------------
                 street_address = request.POST.get('street_address')
                 apartment_address = request.POST.get('apartment_address')
                 country = request.POST.get('country')
@@ -386,18 +373,19 @@ def open_checkout(request):
                     final_price=total_kart_price,
                     payment_id=payment_obj,
                 )
-                obj.items.set(ordered_list)
+                obj.items.set(karts)
                 obj.save()
                 print("Order placed")
-                karts.delete()
-                print("kart deleted")
-                karts.delete()
-                print("kart deleted")
+                for kart in karts:
+                    kart.ordered = True
+                    kart.is_deleted = True
+                    kart.save()
+
                 address = CheckoutAddress.objects.filter(user=request.user).last()
                 context = {
                     "address": address,
-                    "total_items": len(ordered_list),
-                    "karts": ordered_list,
+                    "total_items": len(karts),
+                    "karts": karts,
                 }
                 messages.error(request, 'Congratulations! Order Placed...')
                 return render(request, 'orderplaced.html', context)
@@ -419,3 +407,14 @@ def open_checkout(request):
     else:
         messages.error(request, 'Login First!')
         return HttpResponseRedirect('/login/')
+
+
+def my_orders(request):
+    if request.user.is_authenticated:
+        orders = OrderPlaced.objects.filter(user=request.user)
+        context = {
+            "orders": orders,
+        }
+        return render(request, 'myorders.html', context)
+    else:
+        return render(request, 'myorders.html')

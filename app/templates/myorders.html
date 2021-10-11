@@ -3,12 +3,12 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>HOME PAGE</title>
+    <title>Your Orders</title>
     <!-- fontawesome script button logos -->
     <script src="https://kit.fontawesome.com/e672d1ec50.js" crossorigin="anonymous"></script>
   </head>
@@ -77,68 +77,44 @@
             {% endfor %}
       </div>
     {% endif %}
-<!--    contents/items to show-->
-
     <div class="container">
-      {% for product in page_obj %}
-      <a href="{{product.get_product_url}}" style="text-decoration: none;" class="text-dark">
-        <img class="d-inline" src="{{product.image.url}}" alt="product's image" style="width:200px;">
-        <h5 class="text-capitalize">
-          <strong>
-          <small><sup class="p-1 bg-success text-white text-center rounded">{{product.label}}</sup></small>
-          {{product.name}}
-          </strong>
-        </h5>
-        <p>{{product.description}}</p>
-      </a>
-        {% if product.discount_price %}
-          <del><small class="text-primary">Original Price: <span>&#8377;</span>{{product.price}}</small></del><br>
-          <em class="text-danger">Discounted Price: only <span>&#8377;</span>{{product.discount_price}}</em>
+      <h1>Your Orders</h1>
+      {% if not user.is_authenticated %}
+      <h4>Login to see your orders</h4>
+      {% endif %}
+
+<!--      if user is authenticated-->
+
+      {% for order in orders %}
+
+        {% if order.delivered %}
+          <h4>Order Delivered</h4>
         {% else %}
-          <p class="text-primary">Price: <span>&#8377;</span>{{product.price}}</p>
+          <h4>Order In Terminal</h4>
         {% endif %}
-<!--        <h6 class="p-1 bg-success text-white text-center rounded" style="width:90px;">{{product.label}}</h6>-->
-        <hr>
+
+        {% for prod in order.items.all %}
+          <div class="card" style="width: 18rem;">
+            <img src="{{prod.item.image.url}}" class="card-img-top" alt="Product Image">
+            <div class="card-body">
+              <h5 class="card-title">{{prod.item.name}}</h5>
+              <p class="card-text">{{prod.item.description}}.</p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><sup class="p-1 bg-success text-white text-center rounded">{{prod.item.label}}</sup></li>
+              <li class="list-group-item">Price(one quantity): <span>&#8377;</span>{{prod.item.price}}</li>
+              <li class="list-group-item">Quantity: {{prod.quantity}}</li>
+              <li class="list-group-item">Category: {{prod.item.category_id}}</li>
+            </ul>
+            <div class="card-body">
+              <a href="{{prod.item.get_product_url}}" class="card-link text-dark" style="text-decoration: none;">GO TO PRODUCT</a>
+            </div>
+          </div>
+        {% endfor %}
+<hr>
       {% endfor %}
+
     </div>
-
-    <!--    pagination-->
-    <div>
-      <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-          {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}">Previous</a></li>
-          {% else %}
-            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
-          {% endif %}
-
-          <li class="page-item"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
-
-          {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}">Next</a></li>
-          {% else %}
-            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Next</a></li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-    <hr>
-
-
-    <!-- Footer code -->
-
-    <footer class="white-section" id="footer">
-      <div class="container-fluid text-center">
-
-        <i class="footer-icon fab fa-twitter"></i>
-        <i class="footer-icon fab fa-facebook-f"></i>
-        <i class="footer-icon fab fa-instagram"></i>
-        <i class="footer-icon fas fa-envelope"></i>
-
-        <p class="footer-text">© Copyright 2021 E-commerce site by Sourabh Devlal</p>
-      </div>
-    </footer>
-
 
 
     <!-- Optional JavaScript -->
