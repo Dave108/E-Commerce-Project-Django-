@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import dj_database_url
+import django_heroku
 from pathlib import Path
 import os
 # ----imports for cloudinary
@@ -29,7 +30,7 @@ SECRET_KEY = 'django-insecure-yhs*4gf$jg=0ww7+8jel9&v&(p^01(=n+c%8q7+w*%4#37f=21
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -53,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommsite.urls'
@@ -87,17 +90,23 @@ WSGI_APPLICATION = 'ecommsite.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecomm',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ecomm',
+#         'USER': 'postgres',
+#         'PASSWORD': 'admin',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 
+DATABASES = {
+    'default': dj_database_url.config(
+        default="postgres://gdwelyngksdtwf:6b81455f59ef0bd173df2e8bd814102b1fdfb0b8959c0d3ef6f561aff4e8204a@ec2-18"
+                "-211-194-36.compute-1.amazonaws.com:5432/dd8eokfp4npqrp "
+    )
+}
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -134,6 +143,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -149,3 +160,5 @@ cloudinary.config(
     api_secret="4mv69-IjhtuzcoMAmsHBYeyaDkw",
     secure=True
 )
+
+django_heroku.settings(locals())
